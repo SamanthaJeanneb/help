@@ -16,68 +16,64 @@
     /* Tech-like button styling with ring animations */
     button {
       position: relative;
-      background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
-      color: #fff;
-      border: 2px solid transparent;
-      border-radius: 50px;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: 500;
+      background: rgba(0, 0, 0, 0.3);
+      color: #00ffff;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-radius: 4px;
+      padding: 10px 24px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
       cursor: pointer;
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      font-family: 'Courier New', monospace;
     }
     
     button::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
-      border-radius: 50px;
-      z-index: -1;
-      animation: rotate-ring 3s linear infinite;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    button::after {
       content: '';
       position: absolute;
       top: 0;
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
       transition: left 0.5s ease;
     }
     
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 255, 255, 0.4);
-      background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
+      border-color: rgba(0, 255, 255, 0.6);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.5);
+      transform: translateY(-1px);
     }
     
     button:hover::before {
-      opacity: 1;
+      left: 100%;
     }
     
     button:hover::after {
-      left: 100%;
+      opacity: 1;
     }
     
     button:active {
       transform: translateY(0);
-      box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
-    }
-    
-    @keyframes rotate-ring {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
     }
     
     /* File upload styling */
@@ -102,17 +98,18 @@
     
     /* Special styling for AR/VR buttons */
     button[data-xr] {
-      background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 255, 0.1));
-      box-shadow: 0 4px 20px rgba(0, 255, 0, 0.2);
+      border-color: rgba(0, 255, 0, 0.4);
+      color: #00ff00;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
     }
     
     button[data-xr]:hover {
-      box-shadow: 0 8px 30px rgba(0, 255, 0, 0.4);
-      background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 255, 0.2));
+      border-color: rgba(0, 255, 0, 0.7);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.05);
     }
     
     button[data-xr]::before {
-      background: linear-gradient(45deg, #00ff00, #00c8ff, #00ff88, #00ff00);
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.3), transparent);
     }
     
     /* Model picker modal */
@@ -154,28 +151,36 @@
     }
     
     .modal-title {
-      font-size: 24px;
+      font-size: 18px;
       font-weight: 600;
-      background: linear-gradient(45deg, #00ffff, #ff00ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #00ffff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
     }
     
     .modal-close {
       background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #00ffff;
+      font-size: 20px;
+      font-weight: 300;
       cursor: pointer;
       padding: 0;
       width: 35px;
       height: 35px;
       line-height: 1;
-      transition: transform 0.2s;
+      transition: all 0.2s;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .modal-close:hover {
-      transform: rotate(90deg);
+      border-color: rgba(0, 255, 255, 0.6);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+      background: rgba(0, 255, 255, 0.1);
     }
     
     .model-grid {
@@ -225,8 +230,18 @@
     }
     
     .model-icon {
-      font-size: 48px;
-      margin-bottom: 10px;
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00ffff;
+    }
+    
+    .model-icon svg {
+      width: 100%;
+      height: 100%;
     }
     
     .model-name {
@@ -252,23 +267,82 @@
     }
     
     .card-btn {
-      font-size: 18px;
-      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 6px 12px;
       border: none;
-      background: transparent;
+      background: rgba(0, 255, 255, 0.1);
+      color: #00ffff;
       cursor: pointer;
-      border-radius: 8px;
-      transition: background 0.2s;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      transition: all 0.2s;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
     }
     
     .card-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(0, 255, 255, 0.2);
+      border-color: rgba(0, 255, 255, 0.4);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+    
+    .card-btn.delete-btn {
+      background: rgba(255, 0, 0, 0.1);
+      color: #ff6b6b;
+      border-color: rgba(255, 0, 0, 0.2);
+    }
+    
+    .card-btn.delete-btn:hover {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: rgba(255, 0, 0, 0.4);
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
     }
     
     a { color: #8ec7ff; text-decoration: none; }
+    
+    /* Particle effects */
+    .particle {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: rgba(0, 255, 255, 0.5);
+      pointer-events: none;
+      z-index: 1;
+      animation: float 20s infinite linear;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    
+    /* Status text styling */
+    #status {
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(0, 255, 255, 0.7);
+    }
   </style>
 </head>
 <body>
+  <canvas id="particleCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></canvas>
   <div id="app"></div>
   <div id="ui">
     <div id="status">Aim at the floor. When the ring appears, press trigger to place. Hold trigger to drag.</div>

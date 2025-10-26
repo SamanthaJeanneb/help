@@ -184,7 +184,7 @@ const fileUploadContainer = document.createElement('div');
 fileUploadContainer.className = 'file-upload-container';
 
 const fileUploadBtn = document.createElement('button');
-fileUploadBtn.textContent = '📁 Upload GLB';
+fileUploadBtn.textContent = 'UPLOAD';
 fileUploadBtn.className = 'file-upload-label';
 
 const fileInput = document.createElement('input');
@@ -237,7 +237,7 @@ buttonsRoot.appendChild(fileUploadContainer);
 
 // Model Picker button
 const pickerBtn = document.createElement('button');
-pickerBtn.textContent = '🎯 Browse Models';
+pickerBtn.textContent = 'BROWSE';
 pickerBtn.onclick = () => {
   renderModelGrid();
   modelPickerModal.classList.add('active');
@@ -246,7 +246,7 @@ buttonsRoot.appendChild(pickerBtn);
 
 // Reset button
 const resetBtn = document.createElement('button');
-resetBtn.textContent = '🔄 Reset Model';
+resetBtn.textContent = 'RESET';
 resetBtn.onclick = () => {
   if (placedObject) {
     scene.remove(placedObject);
@@ -285,11 +285,15 @@ function renderModelGrid() {
     }
     
     card.innerHTML = `
-      <div class="model-icon">🎴</div>
+      <div class="model-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        </svg>
+      </div>
       <div class="model-name" title="${model.name}">${model.name}</div>
       <div class="model-card-actions">
-        <button class="card-btn" onclick="selectModel('${model.id}')">✓ Use</button>
-        <button class="card-btn" onclick="deleteModel('${model.id}')">🗑</button>
+        <button class="card-btn" onclick="selectModel('${model.id}')">LOAD</button>
+        <button class="card-btn delete-btn" onclick="deleteModel('${model.id}')">DEL</button>
       </div>
     `;
     
@@ -482,3 +486,62 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// Particle canvas animation
+const particleCanvas = document.getElementById('particleCanvas');
+if (particleCanvas) {
+  const ctx = particleCanvas.getContext('2d');
+  particleCanvas.width = window.innerWidth;
+  particleCanvas.height = window.innerHeight;
+  
+  const particles = [];
+  const particleCount = 30;
+  
+  class Particle {
+    constructor() {
+      this.x = Math.random() * particleCanvas.width;
+      this.y = Math.random() * particleCanvas.height;
+      this.vx = (Math.random() - 0.5) * 0.5;
+      this.vy = (Math.random() - 0.5) * 0.5;
+      this.size = Math.random() * 2;
+      this.alpha = Math.random() * 0.5;
+    }
+    
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      
+      if (this.x < 0 || this.x > particleCanvas.width) this.vx *= -1;
+      if (this.y < 0 || this.y > particleCanvas.height) this.vy *= -1;
+    }
+    
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 255, 255, ${this.alpha})`;
+      ctx.fill();
+    }
+  }
+  
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
+  }
+  
+  function animateParticles() {
+    ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+    
+    particles.forEach(particle => {
+      particle.update();
+      particle.draw();
+    });
+    
+    requestAnimationFrame(animateParticles);
+  }
+  
+  animateParticles();
+  
+  window.addEventListener('resize', () => {
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
+  });
+}
