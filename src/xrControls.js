@@ -111,5 +111,3 @@ export function updateXRControls(session, placedObject, deltaSeconds = 0.016) {
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
-
-
