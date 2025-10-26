@@ -1,0 +1,95 @@
+module body() {
+    scale([400, 200, 250])
+        sphere(r=0.5, $fn=50);
+}
+
+module head() {
+    translate([200, 0, 50])
+        scale([150, 120, 140])
+            sphere(r=0.5, $fn=50);
+}
+
+module snout() {
+    translate([200, 0, 50])
+        translate([75, 0, -20])
+            scale([80, 60, 50])
+                sphere(r=0.5, $fn=50);
+}
+
+module left_ear() {
+    translate([200, 0, 50])
+        translate([-20, 40, 70])
+            scale([60, 30, 80])
+                sphere(r=0.5, $fn=50);
+}
+
+module right_ear() {
+    translate([200, 0, 50])
+        translate([-20, -40, 70])
+            scale([60, 30, 80])
+                sphere(r=0.5, $fn=50);
+}
+
+module front_left_leg() {
+    translate([80, 60, -180])
+        cylinder(r=25, h=180, $fn=30);
+}
+
+module front_right_leg() {
+    translate([80, -60, -180])
+        cylinder(r=25, h=180, $fn=30);
+}
+
+module back_left_leg() {
+    translate([-80, 60, -180])
+        cylinder(r=25, h=180, $fn=30);
+}
+
+module back_right_leg() {
+    translate([-80, -60, -180])
+        cylinder(r=25, h=180, $fn=30);
+}
+
+module tail() {
+    translate([-200, 0, 60])
+        rotate([0, 45, 0])
+            cylinder(r=15, h=120, $fn=30);
+}
+
+module left_eye() {
+    translate([200, 0, 50])
+        translate([40, 35, 30])
+            sphere(r=12, $fn=30);
+}
+
+module right_eye() {
+    translate([200, 0, 50])
+        translate([40, -35, 30])
+            sphere(r=12, $fn=30);
+}
+
+module nose() {
+    translate([200, 0, 50])
+        translate([75, 0, -20])
+            translate([40, 0, 0])
+                color("black")
+                    sphere(r=15, $fn=30);
+}
+
+module assembly() {
+    body();
+    head();
+    snout();
+    left_ear();
+    right_ear();
+    front_left_leg();
+    front_right_leg();
+    back_left_leg();
+    back_right_leg();
+    tail();
+    left_eye();
+    right_eye();
+    nose();
+}
+
+assembly();
