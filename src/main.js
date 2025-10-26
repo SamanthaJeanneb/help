@@ -8,6 +8,46 @@ import { updateXRControls } from './xrControls.js';
 const appRoot = document.getElementById('app');
 const buttonsRoot = document.getElementById('buttons');
 const statusEl = document.getElementById('status');
+const modelPickerModal = document.getElementById('modelPickerModal');
+const modelGrid = document.getElementById('modelGrid');
+const closeModalBtn = document.getElementById('closeModal');
+
+// Model cache management
+const MODEL_CACHE_KEY = 'webxr_model_cache';
+let selectedModelId = localStorage.getItem('webxr_selected_model') || null;
+
+function getModelCache() {
+  const cache = localStorage.getItem(MODEL_CACHE_KEY);
+  return cache ? JSON.parse(cache) : [];
+}
+
+function saveModelCache(cache) {
+  localStorage.setItem(MODEL_CACHE_KEY, JSON.stringify(cache));
+}
+
+function addModelToCache(file, url) {
+  const cache = getModelCache();
+  const modelId = Date.now().toString();
+  cache.push({
+    id: modelId,
+    name: file.name,
+    url: url,
+    date: new Date().toISOString()
+  });
+  saveModelCache(cache);
+  return modelId;
+}
+
+function deleteModelFromCache(modelId) {
+  const cache = getModelCache();
+  const updatedCache = cache.filter(model => model.id !== modelId);
+  saveModelCache(updatedCache);
+}
+
+function updateSelectedModel(modelId) {
+  selectedModelId = modelId;
+  localStorage.setItem('webxr_selected_model', modelId || '');
+}
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(70, 1, 0.01, 20);
@@ -139,16 +179,171 @@ controller.addEventListener('selectend', () => {
   isDragging = false;
 });
 
-// Optional: simple reset button
+// File upload button for GLB files
+const fileUploadContainer = document.createElement('div');
+fileUploadContainer.className = 'file-upload-container';
+
+const fileUploadBtn = document.createElement('button');
+fileUploadBtn.textContent = '📁 Upload GLB';
+fileUploadBtn.className = 'file-upload-label';
+
+const fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.accept = '.glb,.gltf';
+fileInput.className = 'file-upload-input';
+
+fileInput.addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  try {
+    const url = URL.createObjectURL(file);
+    const model = await loadModel(url);
+    
+    // Add to cache
+    const modelId = addModelToCache(file, url);
+    
+    // Remove existing model if any
+    if (placedObject) {
+      scene.remove(placedObject);
+    }
+    
+    // Create new placed object with uploaded model
+    placedObject = new THREE.Group();
+    scene.add(placedObject);
+    placedObject.add(model);
+    
+    // Update selection
+    updateSelectedModel(modelId);
+    
+    statusEl.textContent = `Loaded: ${file.name}`;
+    
+    // Refresh modal if open
+    if (modelPickerModal.classList.contains('active')) {
+      renderModelGrid();
+    }
+    
+    // Clean up the object URL after a delay
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) {
+    console.error('Failed to load uploaded model:', error);
+    statusEl.textContent = 'Failed to load model. Please try a different file.';
+  }
+});
+
+fileUploadContainer.appendChild(fileUploadBtn);
+fileUploadContainer.appendChild(fileInput);
+buttonsRoot.appendChild(fileUploadContainer);
+
+// Model Picker button
+const pickerBtn = document.createElement('button');
+pickerBtn.textContent = '🎯 Browse Models';
+pickerBtn.onclick = () => {
+  renderModelGrid();
+  modelPickerModal.classList.add('active');
+};
+buttonsRoot.appendChild(pickerBtn);
+
+// Reset button
 const resetBtn = document.createElement('button');
-resetBtn.textContent = 'Reset Model';
+resetBtn.textContent = '🔄 Reset Model';
 resetBtn.onclick = () => {
   if (placedObject) {
     scene.remove(placedObject);
     placedObject = null;
   }
+  statusEl.textContent = 'Model reset. Upload a new GLB file or start AR/VR.';
 };
 buttonsRoot.appendChild(resetBtn);
+
+// Modal handlers
+closeModalBtn.onclick = () => {
+  modelPickerModal.classList.remove('active');
+};
+
+modelPickerModal.onclick = (e) => {
+  if (e.target === modelPickerModal) {
+    modelPickerModal.classList.remove('active');
+  }
+};
+
+// Render model grid
+function renderModelGrid() {
+  const cache = getModelCache();
+  modelGrid.innerHTML = '';
+  
+  if (cache.length === 0) {
+    modelGrid.innerHTML = '<div class="empty-state">No models cached yet. Upload a GLB file to get started!</div>';
+    return;
+  }
+  
+  cache.forEach((model, index) => {
+    const card = document.createElement('div');
+    card.className = 'model-card';
+    if (model.id === selectedModelId) {
+      card.classList.add('selected');
+    }
+    
+    card.innerHTML = `
+      <div class="model-icon">🎴</div>
+      <div class="model-name" title="${model.name}">${model.name}</div>
+      <div class="model-card-actions">
+        <button class="card-btn" onclick="selectModel('${model.id}')">✓ Use</button>
+        <button class="card-btn" onclick="deleteModel('${model.id}')">🗑</button>
+      </div>
+    `;
+    
+    modelGrid.appendChild(card);
+  });
+}
+
+// Make functions globally available for onclick handlers
+window.selectModel = async function(modelId) {
+  const cache = getModelCache();
+  const model = cache.find(m => m.id === modelId);
+  if (!model) return;
+  
+  try {
+    // Try to load from cached URL
+    const modelObj = await loadModel(model.url);
+    
+    // Remove existing model
+    if (placedObject) {
+      scene.remove(placedObject);
+    }
+    
+    // Create new placed object with selected model
+    placedObject = new THREE.Group();
+    scene.add(placedObject);
+    placedObject.add(modelObj);
+    
+    updateSelectedModel(modelId);
+    statusEl.textContent = `Selected: ${model.name}`;
+    modelPickerModal.classList.remove('active');
+    
+    // Re-render to show selection
+    renderModelGrid();
+  } catch (error) {
+    console.error('Failed to load cached model:', error);
+    statusEl.textContent = 'Failed to load model. It may have been deleted.';
+    deleteModelFromCache(modelId);
+    renderModelGrid();
+  }
+};
+
+window.deleteModel = function(modelId) {
+  if (!confirm('Delete this model from cache?')) return;
+  deleteModelFromCache(modelId);
+  if (selectedModelId === modelId) {
+    updateSelectedModel(null);
+    if (placedObject) {
+      scene.remove(placedObject);
+      placedObject = null;
+    }
+    statusEl.textContent = 'Model deleted. Upload a new model or select another.';
+  }
+  renderModelGrid();
+};
 
 // XR Buttons: prefer AR; fall back to VR (for web browser without AR)
 async function setupXRButtons() {
@@ -165,11 +360,13 @@ async function setupXRButtons() {
       optionalFeatures: ['dom-overlay'],
       domOverlay: { root: document.body }
     });
+    arButton.setAttribute('data-xr', 'ar');
     buttonsRoot.appendChild(arButton);
     statusEl.textContent = 'Aim at floor. Trigger to place/drag.';
   } else if (vrSupported) {
     useVR = true;
     const vrButton = VRButton.createButton(renderer);
+    vrButton.setAttribute('data-xr', 'vr');
     buttonsRoot.appendChild(vrButton);
     gridHelper.visible = true;
     statusEl.textContent = 'VR fallback: Trigger to place/drag on floor grid.';
@@ -178,6 +375,26 @@ async function setupXRButtons() {
   }
 }
 setupXRButtons();
+
+// Load previously selected model on startup
+(async function loadInitialModel() {
+  if (selectedModelId) {
+    const cache = getModelCache();
+    const model = cache.find(m => m.id === selectedModelId);
+    if (model) {
+      try {
+        const modelObj = await loadModel(model.url);
+        placedObject = new THREE.Group();
+        scene.add(placedObject);
+        placedObject.add(modelObj);
+        statusEl.textContent = `Ready: ${model.name}`;
+      } catch (error) {
+        console.warn('Failed to load cached model on startup:', error);
+        updateSelectedModel(null);
+      }
+    }
+  }
+})();
 
 renderer.setAnimationLoop(render);
 

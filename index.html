@@ -11,9 +11,260 @@
     body { background: #000; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif; }
     #ui { position: fixed; inset: env(safe-area-inset-top) env(safe-area-inset-right) auto env(safe-area-inset-left); display: flex; gap: 8px; align-items: center; padding: 10px 12px; z-index: 10; }
     #status { font-size: 14px; opacity: 0.85; }
-    #buttons { margin-left: auto; display: flex; gap: 8px; }
-    button { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 10px; font-size: 14px; }
-    button:hover { background: rgba(255,255,255,0.18); }
+    #buttons { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+    
+    /* Tech-like button styling with ring animations */
+    button {
+      position: relative;
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+      color: #fff;
+      border: 2px solid transparent;
+      border-radius: 50px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+      border-radius: 50px;
+      z-index: -1;
+      animation: rotate-ring 3s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 255, 255, 0.4);
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
+    }
+    
+    button:hover::before {
+      opacity: 1;
+    }
+    
+    button:hover::after {
+      left: 100%;
+    }
+    
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+    }
+    
+    @keyframes rotate-ring {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* File upload styling */
+    .file-upload-container {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .file-upload-input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    
+    .file-upload-label {
+      display: inline-block;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    /* Special styling for AR/VR buttons */
+    button[data-xr] {
+      background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 255, 0.1));
+      box-shadow: 0 4px 20px rgba(0, 255, 0, 0.2);
+    }
+    
+    button[data-xr]:hover {
+      box-shadow: 0 8px 30px rgba(0, 255, 0, 0.4);
+      background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 255, 0.2));
+    }
+    
+    button[data-xr]::before {
+      background: linear-gradient(45deg, #00ff00, #00c8ff, #00ff88, #00ff00);
+    }
+    
+    /* Model picker modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: linear-gradient(135deg, rgba(20, 20, 30, 0.95), rgba(10, 10, 20, 0.95));
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 600px;
+      max-height: 80vh;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 255, 255, 0.3);
+      position: relative;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-title {
+      font-size: 24px;
+      font-weight: 600;
+      background: linear-gradient(45deg, #00ffff, #ff00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      width: 35px;
+      height: 35px;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+    
+    .modal-close:hover {
+      transform: rotate(90deg);
+    }
+    
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    
+    .model-grid::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .model-grid::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    
+    .model-grid::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #00ffff, #ff00ff);
+      border-radius: 10px;
+    }
+    
+    .model-card {
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .model-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 255, 255, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
+    }
+    
+    .model-card.selected {
+      border-color: #00ffff;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(255, 0, 255, 0.3));
+    }
+    
+    .model-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    
+    .model-name {
+      font-size: 12px;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+    
+    .model-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+    
+    .card-btn {
+      font-size: 18px;
+      padding: 5px 10px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    
+    .card-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
     a { color: #8ec7ff; text-decoration: none; }
   </style>
 </head>
@@ -23,6 +274,18 @@
     <div id="status">Aim at the floor. When the ring appears, press trigger to place. Hold trigger to drag.</div>
     <div id="buttons"></div>
   </div>
+  
+  <!-- Model Picker Modal -->
+  <div id="modelPickerModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Select 3D Model</h2>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div id="modelGrid" class="model-grid"></div>
+    </div>
+  </div>
+  
   <script type="module" src="/src/main.js"></script>
   <!-- Vite injects HTTPS with self-signed cert; accept warning on Quest -->
 </body>
